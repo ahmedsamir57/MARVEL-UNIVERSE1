@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b10">
+<title>Marvel Universe | أفلام مارفل</title>
+<style>
+:root{--bg:#090b10;--panel:#141923;--red:#ed1d24;--muted:#aab2c0;--line:#293141}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#202738 0,#090b10 55%);color:#f7f8fb;font-family:Arial,Tahoma,sans-serif}
+header{padding:32px 18px 24px;text-align:center;background:linear-gradient(180deg,#161c28aa,transparent)}
+.logo{font-size:clamp(30px,6vw,58px);font-weight:1000;letter-spacing:1px;direction:ltr}.logo span{background:var(--red);padding:2px 8px;border-radius:5px}
+header p{color:var(--muted);margin:12px auto 0;max-width:700px;line-height:1.8}
+.wrap{max-width:1400px;margin:auto;padding:0 18px 50px}
+.tools{position:sticky;top:0;z-index:5;background:#0b0e14ed;backdrop-filter:blur(12px);padding:12px;border:1px solid var(--line);border-radius:14px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:9px;margin-bottom:20px}
+input,select,button{font:inherit;color:#fff;background:#171d28;border:1px solid #333e50;border-radius:9px;padding:12px;min-width:0}input:focus,select:focus{outline:2px solid var(--red)}
+.stats{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin:14px 2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:16px}
+.card{background:linear-gradient(160deg,#171d28,#10141c);border:1px solid #252e3d;border-radius:13px;overflow:hidden;transition:.2s;min-width:0}
+.card:hover{transform:translateY(-4px);border-color:#e53a40;box-shadow:0 12px 30px #0008}
+.poster{width:100%;aspect-ratio:2/3;display:block;object-fit:cover;background:linear-gradient(135deg,#2c3545,#11151d);color:#fff}
+.info{padding:11px}.title{font-weight:800;font-size:14px;line-height:1.5;min-height:42px}.meta{font-size:12px;color:var(--muted);margin:5px 0 10px}
+.tag{display:inline-block;color:#ffb5b7;background:#4b171d;border-radius:5px;padding:4px 6px;font-size:11px;margin-left:4px}
+.seen{width:100%;padding:8px;background:#202837;border-color:#343f50;font-size:12px;cursor:pointer}.seen.active{background:#17452f;border-color:#24784e;color:#b8ffd5}
+.empty{text-align:center;color:var(--muted);padding:40px;display:none}
+footer{text-align:center;color:#8f98a8;font-size:12px;line-height:1.8;padding:25px}
+@media(max-width:650px){.tools{grid-template-columns:1fr 1fr}.tools input{grid-column:1/-1}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.wrap{padding-inline:11px}}
+</style></head>
+<body>
+<header><div class="logo"><span>MARVEL</span> UNIVERSE</div><p>مكتبتك لأفلام مارفل — أفلام عالم MCU، وSpider-Man، وX-Men، وFantastic Four، وBlade، وأفلام أخرى مستوحاة من قصص مارفل.</p></header>
+<main class="wrap">
+<div class="tools">
+<input id="search" type="search" placeholder="🔎 ابحث عن فيلم بالعربي أو الإنجليزي...">
+<select id="universe"><option value="">كل السلاسل</option></select>
+<select id="sort"><option value="new">الأحدث أولًا</option><option value="old">الأقدم أولًا</option><option value="az">الاسم أ-ي</option></select>
+</div>
+<div class="stats"><span id="count"></span><span id="seenCount"></span></div>
+<div id="grid" class="grid"></div><div id="empty" class="empty">مش لاقيين فيلم بالاسم ده.</div>
+</main>
+<footer>الملصقات تُحمَّل تلقائيًا من صور صفحات ويكيبيديا عند توفرها، وقد لا تظهر بعض الصور بسبب اختلاف اسم الصفحة أو قيود المصدر.<br>الموقع دليل أفلام غير رسمي، وليس تابعًا لشركة Marvel.</footer>
+<script>
+const movies = [
+["Howard the Duck",1986,"أفلام أخرى","Howard the Duck (film)"],
+["Blade",1998,"Blade","Blade (1998 film)"],
+["X-Men",2000,"X-Men","X-Men (film)"],
+["Blade II",2002,"Blade","Blade II"],
+["Spider-Man",2002,"Spider-Man","Spider-Man (2002 film)"],
+["Daredevil",2003,"أفلام أخرى","Daredevil (film)"],
+["X2: X-Men United",2003,"X-Men","X2 (film)"],
+["Hulk",2003,"أفلام أخرى","Hulk (film)"],
+["The Punisher",2004,"أفلام أخرى","The Punisher (2004 film)"],
+["Spider-Man 2",2004,"Spider-Man","Spider-Man 2"],
+["Blade: Trinity",2004,"Blade","Blade: Trinity"],
+["Elektra",2005,"أفلام أخرى","Elektra (2005 film)"],
+["Fantastic Four",2005,"Fantastic Four","Fantastic Four (2005 film)"],
+["X-Men: The Last Stand",2006,"X-Men","X-Men: The Last Stand"],
+["Ghost Rider",2007,"أفلام أخرى","Ghost Rider (2007 film)"],
+["Spider-Man 3",2007,"Spider-Man","Spider-Man 3"],
+["Fantastic Four: Rise of the Silver Surfer",2007,"Fantastic Four","Fantastic Four: Rise of the Silver Surfer"],
+["Iron Man",2008,"MCU","Iron Man (2008 film)"],
+["The Incredible Hulk",2008,"MCU","The Incredible Hulk (film)"],
+["Punisher: War Zone",2008,"أفلام أخرى","Punisher: War Zone"],
+["X-Men Origins: Wolverine",2009,"X-Men","X-Men Origins: Wolverine"],
+["Iron Man 2",2010,"MCU","Iron Man 2"],
+["Thor",2011,"MCU","Thor (film)"],
+["X-Men: First Class",2011,"X-Men","X-Men: First Class (film)"],
+["Captain America: The First Avenger",2011,"MCU","Captain America: The First Avenger"],
+["Ghost Rider: Spirit of Vengeance",2011,"أفلام أخرى","Ghost Rider: Spirit of Vengeance"],
+["The Avengers",2012,"MCU","The Avengers (2012 film)"],
+["The Amazing Spider-Man",2012,"Spider-Man","The Amazing Spider-Man (2012 film)"],
+["Iron Man 3",2013,"MCU","Iron Man 3"],
+["The Wolverine",2013,"X-Men","The Wolverine (film)"],
+["Thor: The Dark World",2013,"MCU","Thor: The Dark World"],
+["Captain America: The Winter Soldier",2014,"MCU","Captain America: The Winter Soldier"],
+["The Amazing Spider-Man 2",2014,"Spider-Man","The Amazing Spider-Man 2"],
+["X-Men: Days of Future Past",2014,"X-Men","X-Men: Days of Future Past"],
+["Guardians of the Galaxy",2014,"MCU","Guardians of the Galaxy (film)"],
+["Avengers: Age of Ultron",2015,"MCU","Avengers: Age of Ultron"],
+["Ant-Man",2015,"MCU","Ant-Man (film)"],
+["Fantastic Four",2015,"Fantastic Four","Fantastic Four (2015 film)"],
+["Deadpool",2016,"X-Men","Deadpool (film)"],
+["Captain America: Civil War",2016,"MCU","Captain America: Civil War"],
+["Doctor Strange",2016,"MCU","Doctor Strange (2016 film)"],
+["Logan",2017,"X-Men","Logan (film)"],
+["Guardians of the Galaxy Vol. 2",2017,"MCU","Guardians of the Galaxy Vol. 2"],
+["Spider-Man: Homecoming",2017,"Spider-Man","Spider-Man: Homecoming"],
+["Thor: Ragnarok",2017,"MCU","Thor: Ragnarok"],
+["Black Panther",2018,"MCU","Black Panther (film)"],
+["Avengers: Infinity War",2018,"MCU","Avengers: Infinity War"],
+["Deadpool 2",2018,"X-Men","Deadpool 2"],
+["Ant-Man and the Wasp",2018,"MCU","Ant-Man and the Wasp"],
+["Venom",2018,"Spider-Man","Venom (2018 film)"],
+["Captain Marvel",2019,"MCU","Captain Marvel (film)"],
+["Avengers: Endgame",2019,"MCU","Avengers: Endgame"],
+["Dark Phoenix",2019,"X-Men","Dark Phoenix (film)"],
+["Spider-Man: Far From Home",2019,"Spider-Man","Spider-Man: Far From Home"],
+["The New Mutants",2020,"X-Men","The New Mutants ( film)"],
+["Black Widow",2021,"MCU","Black Widow (2021 film)"],
+["Shang-Chi and the Legend of the Ten Rings",2021,"MCU","Shang-Chi and the Legend of the Ten Rings"],
+["Venom: Let There Be Carnage",2021,"Spider-Man","Venom: Let There Be Carnage"],
+["Eternals",2021,"MCU","Eternals (film)"],
+["Spider-Man: No Way Home",2021,"Spider-Man","Spider-Man: No Way Home"],
+["Morbius",2022,"Spider-Man","Morbius (film)"],
+["Doctor Strange in the Multiverse of Madness",2022,"MCU","Doctor Strange in the Multiverse of Madness"],
+["Thor: Love and Thunder",2022,"MCU","Thor: Love and Thunder"],
+["Black Panther: Wakanda Forever",2022,"MCU","Black Panther: Wakanda Forever"],
+["Ant-Man and the Wasp: Quantumania",2023,"MCU","Ant-Man and the Wasp: Quantumania"],
+["Guardians of the Galaxy Vol. 3",2023,"MCU","Guardians of the Galaxy Vol. 3"],
+["The Marvels",2023,"MCU","The Marvels (film)"],
+["Madame Web",2024,"Spider-Man","Madame Web (film)"],
+["Deadpool & Wolverine",2024,"MCU","Deadpool & Wolverine"],
+["Venom: The Last Dance",2024,"Spider-Man","Venom: The Last Dance"],
+["Kraven the Hunter",2024,"Spider-Man","Kraven the Hunter (film)"],
+["Captain America: Brave New World",2025,"MCU","Captain America: Brave New World"],
+["Thunderbolts*",2025,"MCU","Thunderbolts* (film)"],
+["The Fantastic Four: First Steps",2025,"MCU","The Fantastic Four: First Steps"],
+["Spider-Man: Brand New Day",2026,"Spider-Man","Spider-Man: Brand New Day"]
+];
+const grid=document.querySelector('#grid'), search=document.querySelector('#search'), universe=document.querySelector('#universe'), sort=document.querySelector('#sort');
+const seenKey='marvel-universe-seen-v1'; let seen=new Set(JSON.parse(localStorage.getItem(seenKey)||'[]'));
+[...new Set(movies.map(m=>m[2]))].sort().forEach(u=>{let o=document.createElement('option');o.value=u;o.textContent=u;universe.append(o)});
+function posterUrl(page){return 'https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(page.replaceAll(' ','_'))}
+function render(){
+ let q=search.value.toLowerCase().trim(), u=universe.value;
+ let arr=movies.filter(m=>(!u||m[2]===u)&&(!q||(m[0]+' '+m[1]+' '+m[2]).toLowerCase().includes(q)));
+ if(sort.value==='old')arr.sort((a,b)=>a[1]-b[1]||a[0].localeCompare(b[0]));
+ else if(sort.value==='az')arr.sort((a,b)=>a[0].localeCompare(b[0]));
+ else arr.sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+ grid.innerHTML='';
+ arr.forEach(m=>{
+  const key=m[0]+' ('+m[1]+')', card=document.createElement('article');card.className='card';
+  const img=document.createElement('img');img.className='poster';img.alt='بوستر '+m[0];img.loading='lazy';
+  img.src='https://en.wikipedia.org/wiki/Special:FilePath/'+encodeURIComponent(m[0]+' film poster.jpg')+'?width=420';
+  img.onerror=()=>{img.onerror=null;fetch(posterUrl(m[3])).then(r=>r.ok?r.json():Promise.reject()).then(d=>{if(d.thumbnail&&d.thumbnail.source)img.src=d.thumbnail.source;else img.src='https://placehold.co/420x630/171d28/ffffff?text='+encodeURIComponent(m[0])}).catch(()=>img.src='https://placehold.co/420x630/171d28/ffffff?text='+encodeURIComponent(m[0]))};
+  const info=document.createElement('div');info.className='info';
+  const title=document.createElement('div');title.className='title';title.textContent=m[0];
+  const meta=document.createElement('div');meta.className='meta';meta.textContent=m[1]+' • '+m[2];
+  const tag=document.createElement('span');tag.className='tag';tag.textContent='فيلم';
+  const btn=document.createElement('button');btn.className='seen'+(seen.has(key)?' active':'');btn.textContent=seen.has(key)?'✓ شاهدته':'＋ أضف لقائمة المشاهدة';
+  btn.onclick=()=>{seen.has(key)?seen.delete(key):seen.add(key);localStorage.setItem(seenKey,JSON.stringify([...seen]));render()};
+  info.append(title,meta,tag,btn);card.append(img,info);grid.append(card);
+ });
+ document.querySelector('#count').textContent='عدد النتائج: '+arr.length+' من '+movies.length+' فيلم';
+ document.querySelector('#seenCount').textContent='شاهدت: '+seen.size+' فيلم';
+ document.querySelector('#empty').style.display=arr.length?'none':'block';
+}
+search.addEventListener('input',render);universe.addEventListener('change',render);sort.addEventListener('change',render);render();
+</script></body></html>
